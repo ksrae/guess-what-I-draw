@@ -1,0 +1,127 @@
+<!-- Load TensorFlow.js. This is required to use coco-ssd model. -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"> </script>
+<!-- Load the coco-ssd model. -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
+
+<!-- Replace this with your image. Make sure CORS settings allow reading the image! -->
+<script type="text/javascript">
+   var ge = null; // 그래픽 에디터 객체를 가리키는 변수
+
+function init() {
+    var canvas = null; // 캔버스 DOM 객체를 가리키는 변수
+    var context = null; // 캔버스에 그림을 그리는 도구 객체를 가리키는 변수
+
+    canvas = document.getElementById("myCanvas");
+    context = canvas.getContext("2d");
+
+    ge = new GraphicEditor(canvas, context); // 그래픽 에디터 객체 생성
+}
+
+class GraphicEditor { // 캔버스에 그림 그리는 자바스크립트 클래스
+    constructor(canvas, context) { // 생성자
+        this.canvas = canvas;     // 프로퍼티 canvas 생성
+        this.context = context; // 프로퍼티 context 생성
+        this.startX = 0;    // 프로퍼티 startX 생성
+        this.startY = 0;    // 프로퍼티 startY 생성
+        this.drawing = false;    // 프로퍼티 drawing 생성
+
+        // 선굵기와 색 초기화
+        this.context.lineWidth = 2; // 선 굵기를 2로 설정
+        this.context.strokeStyle = "blue";
+
+        // 이벤트 리스너 등록
+        this.canvas.onmousedown = function (e) { ge.down(e); }
+        this.canvas.onmouseup = function (e) { ge.up(e); }
+        this.canvas.onmousemove = function (e) { ge.move(e); }
+        this.canvas.onmouseout = function (e) { ge.out(e); }
+
+        // 이벤트 리스너가 canvas 객체에 달려 있기 때문에, 리스너가 실행되는 그 때
+        // this는 canvas 객체를 가리키며, ge.down(e)를 this.down(e)로 한다면
+        // 곧 canvas의 멤버 메소드 down(e)를 호출하는 것이 된다.
+        // 하지만 canvas 객체에는 down(e) 메소드가 없기 때문에 
+        // 실행 중에 오류가 발생한다.
+        // 그러므로 전역 변수 ge를 두어, ge.down(e)를 호출하도록 하였음
+
+    }
+
+    draw(curX, curY) {//(startX, startY)에서 (curX, curY) 까지 선그리는 메소드
+        this.context.beginPath();
+        this.context.moveTo(this.startX, this.startY);
+        this.context.lineTo(curX, curY);
+        this.context.stroke();
+    }
+
+    down(e) { // 마우스 다운시 호출되는 메소드
+        this.startX = e.offsetX; this.startY = e.offsetY;
+        this.drawing = true;
+    }
+
+    up(e) { this.drawing = false; } // 마우스 업 시 호출되는 메소드
+
+    move(e) { // 마우스를 움직이는 동안 계속 호출되는 메소드
+        if(!this.drawing) return;
+        var curX = e.offsetX, curY = e.offsetY;
+        ge.draw(curX, curY);
+        this.startX = curX; this.startY = curY;
+    }
+
+    out(e) { this.drawing = false; } // 마우스가 캔버스 바깥으로 나가는 순간 호출되는 메소드 
+}
+//     function draw(){
+
+//         // //이미지 객체 생성
+//         // var imgClo = new Image();
+
+//         // //페이지 로드후 이미지가 로드 되었을 때 이미지 출력
+//         // imgClo.addEventListener('load', function(){
+//         //     //로드된 이미지를 캔버스에 출력
+//         //     var ctx = document.getElementById('myCanvas').getContext("2d");
+
+//         //     //canvas.drawImage() 함수를 사용하여 이미지 출력
+//         //     //drawImage ( image sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+//         //     ctx.drawImage( imgClo , 0, 0, 200, 200);
+        
+//         // },false);
+
+//         // //이미지 경로 설정
+//         // imgClo.src="cat.jpg";
+    
+//         var c = document.getElementById("myCanvas");
+// var ctx = c.getContext("2d");
+// ctx.beginPath();
+// ctx.rect(20, 20, 150, 100);
+// ctx.stroke();
+//     }
+</script>
+ 
+<body onload="init();"></body>
+    <canvas id="myCanvas" style="background-color:aliceblue" width="400" height="300"></canvas>
+</body>
+
+<!-- Place your code in the script tag below. You can also use an external .js file -->
+<script>
+  // Notice there is no 'import' statement. 'cocoSsd' and 'tf' is
+  // available on the index-page because of the script tag above.
+
+  let img = document.getElementById('myCanvas');
+  console.log('loading...');
+  let index = 1;
+  // Load the model.
+  
+    
+    cocoSsd.load().then(model => {
+    // detect objects in the image.
+    setInterval(() => {
+      console.log(index++, '...');
+      img = document.getElementById('myCanvas');
+    model.detect(img).then(predictions => {
+      //console.log('Predictions: ', predictions);
+      if(predictions && predictions.length) {
+        console.log(predictions[0]);
+      }
+    });
+  }, 1000);
+  });    
+  
+
+</script>

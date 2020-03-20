@@ -1,0 +1,63 @@
+Load TensorFlow.js. This is required to use MobileNet.
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"> </script>
+<!-- Load the MobileNet model. -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0"> </script>
+
+<!-- Replace this with your image. Make sure CORS settings allow reading the image! -->
+
+
+<script type="text/javascript">
+    
+    function draw(){
+
+        //이미지 객체 생성
+        var imgClo = new Image();
+
+        //페이지 로드후 이미지가 로드 되었을 때 이미지 출력
+        imgClo.addEventListener('load', function(){
+            //로드된 이미지를 캔버스에 출력
+            var ctx = document.getElementById('myCanvas').getContext("2d");
+
+            //canvas.drawImage() 함수를 사용하여 이미지 출력
+            //drawImage ( image sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+            ctx.drawImage( imgClo , 0, 0, 200, 200);
+        
+        },false);
+
+        //이미지 경로 설정
+        imgClo.src="cat.jpg";
+    
+    }
+</script>
+
+
+
+
+<!-- Place your code in the script tag below. You can also use an external .js file -->
+<script>
+  // Notice there is no 'import' statement. 'mobilenet' and 'tf' is
+  // available on the index-page because of the script tag above.
+
+  const img = document.getElementById('myCanvas');
+  console.log('loading...');
+  // Load the model.
+  mobilenet.load().then(model => {
+    // Classify the image.
+    
+    model.classify(img).then(predictions => {
+      console.log('Predictions: ');
+      console.log(predictions);
+
+      predictions.sort((a,b) => {
+        return b.probability - a.probability;
+      });
+
+      console.log(predictions[0].className, '으로 판단되며, 정확도는 ', Math.round(predictions[0].probability*10000)/100, '% 입니다.');
+    });
+  });
+</script>
+
+<body onload="draw();">
+ 
+  <canvas id="myCanvas" height="200" width="200"></canvas>
+</body>
